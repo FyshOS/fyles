@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -63,7 +64,11 @@ func (ui *fyles) itemTapped(item *fileItem) {
 }
 
 func (ui *fyles) makeFilesPanel(u fyne.URI) *xWidget.FileTree {
-	root := storage.NewFileURI("/") // TODO windows :(
+	vol := filepath.VolumeName(u.Path())
+	if vol == "" {
+		vol = "/"
+	}
+	root := storage.NewFileURI(vol)
 	files := xWidget.NewFileTree(root)
 	files.Filter = filterDir(ui.filter)
 	files.Sorter = func(u1, u2 fyne.URI) bool {
