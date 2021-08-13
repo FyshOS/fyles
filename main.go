@@ -12,10 +12,12 @@ import (
 	"fyne.io/fyne/v2/theme"
 )
 
+const winTitle = "Fyles"
+
 func main() {
 	a := app.NewWithID("io.fyne.fyles")
 	a.SetIcon(resourceIconPng)
-	w := a.NewWindow("Fyles")
+	w := a.NewWindow(winTitle)
 	fileItemMin = fyne.NewSize(fileIconCellWidth, fileIconSize+fileTextSize+theme.Padding())
 
 	path, _ := os.Getwd()
@@ -24,6 +26,7 @@ func main() {
 	}
 	current := storage.NewFileURI(path)
 	ui := &fyles{win: w, filter: filterHidden()}
+	tools := ui.makeToolbar()
 	ui.items = container.NewGridWrap(fileItemMin)
 	ui.fileScroll = container.NewScroll(ui.items)
 	fileTree := ui.makeFilesPanel(current)
@@ -31,7 +34,7 @@ func main() {
 	mainSplit := container.NewHSplit(fileTree, ui.fileScroll)
 	mainSplit.Offset = 0.35
 
-	w.SetContent(container.NewBorder(ui.makeToolbar(), nil, nil, nil, mainSplit))
+	w.SetContent(container.NewBorder(tools, nil, nil, nil, mainSplit))
 	w.Resize(fyne.NewSize(640, 360))
 	w.ShowAndRun()
 }

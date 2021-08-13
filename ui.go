@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
@@ -38,6 +39,8 @@ func (ui *fyles) setDirectory(u fyne.URI) {
 	ui.items.Objects = items
 	ui.items.Refresh()
 	ui.fileScroll.ScrollToTop()
+	ui.filePath.SetText(u.Path())
+	ui.win.SetTitle(winTitle + " : " + u.Name())
 }
 
 func (ui *fyles) itemTapped(item *fileItem) {
@@ -76,13 +79,17 @@ func (ui *fyles) makeFilesPanel(u fyne.URI) *xWidget.FileTree {
 	return files
 }
 
-func (ui *fyles) makeToolbar() *widget.Toolbar {
-	return widget.NewToolbar(
+func (ui *fyles) makeToolbar() *fyne.Container {
+	l := widget.NewLabel("")
+	ui.filePath = l
+
+	return container.NewBorder(nil, nil, widget.NewToolbar(
 		widget.NewToolbarAction(theme.HomeIcon(), func() {
 			home, err := os.UserHomeDir()
 			if err != nil {
 				return
 			}
 			ui.setDirectory(storage.NewFileURI(home))
-		}))
+		})), nil,
+		container.NewHScroll(l))
 }

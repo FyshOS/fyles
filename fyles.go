@@ -4,6 +4,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/storage"
+	"fyne.io/fyne/v2/widget"
 )
 
 type fyles struct {
@@ -11,6 +12,7 @@ type fyles struct {
 	pwd        fyne.URI
 	fileScroll *container.Scroll
 	items      *fyne.Container
+	filePath   *widget.Label
 
 	current *fileItem
 	filter  storage.FileFilter
