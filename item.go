@@ -32,7 +32,7 @@ func (i *fileItem) Tapped(_ *fyne.PointEvent) {
 }
 
 func (i *fileItem) CreateRenderer() fyne.WidgetRenderer {
-	background := canvas.NewRectangle(theme.PrimaryColor())
+	background := canvas.NewRectangle(theme.SelectionColor())
 	background.Hide()
 	text := widget.NewLabelWithStyle(i.name, fyne.TextAlignCenter, fyne.TextStyle{})
 	text.Wrapping = fyne.TextTruncate
@@ -96,7 +96,7 @@ func (s fileItemRenderer) MinSize() fyne.Size {
 
 func (s fileItemRenderer) Refresh() {
 	if s.item.isCurrent {
-		s.background.FillColor = theme.PrimaryColor() // TODO theme.SelectedColor()
+		s.background.FillColor = theme.SelectionColor()
 		s.background.Show()
 	} else {
 		s.background.Hide()
