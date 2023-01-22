@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -86,8 +87,25 @@ func (ui *fyles) makeFilesPanel(u fyne.URI) *xWidget.FileTree {
 		ui.setDirectory(u)
 	}
 
+	openParent(files, u)
 	files.Select(u.String())
 	return files
+}
+
+func openParent(files *xWidget.FileTree, path fyne.URI) {
+	parent, err := storage.Parent(path)
+	if err != nil {
+		return
+	}
+
+	if !files.IsBranchOpen(parent.String()) {
+		openParent(files, parent)
+		id := parent.String()
+		if strings.LastIndexByte(id, filepath.Separator) == len(id)-1 {
+			id = id[:len(id)-1]
+		}
+		files.OpenBranch(id)
+	}
 }
 
 func (ui *fyles) makeToolbar() *fyne.Container {
