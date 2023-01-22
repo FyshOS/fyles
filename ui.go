@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -53,14 +54,19 @@ func (ui *fyles) itemTapped(item *fileItem) {
 	if item == nil {
 		return
 	}
+
+	item.isCurrent = true
+	item.Refresh()
 	if item.dir {
-		ui.setDirectory(item.location)
+		go func() {
+			// show it is selected then change
+			time.Sleep(time.Millisecond * 120)
+			ui.setDirectory(item.location)
+		}()
 		return
 	}
 
 	ui.current = item
-	item.isCurrent = true
-	item.Refresh()
 }
 
 func (ui *fyles) makeFilesPanel(u fyne.URI) *xWidget.FileTree {
