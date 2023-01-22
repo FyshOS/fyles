@@ -11,7 +11,7 @@ import (
 
 const (
 	fileIconSize      = 72
-	fileTextSize      = 24
+	fileTextSize      = 20
 	fileIconCellWidth = fileIconSize * 1.25
 )
 
@@ -86,8 +86,9 @@ func (s fileItemRenderer) Layout(size fyne.Size) {
 	s.icon.Resize(fyne.NewSize(fileIconSize, fileIconSize))
 	s.icon.Move(fyne.NewPos(iconAlign, 0))
 
-	s.text.Resize(fyne.NewSize(size.Width, fileTextSize))
-	s.text.Move(fyne.NewPos(0, size.Height-fileTextSize-theme.Padding()*2))
+	textHeight := s.text.MinSize().Height
+	s.text.Resize(fyne.NewSize(size.Width, textHeight))
+	s.text.Move(fyne.NewPos(0, size.Height-textHeight))
 }
 
 func (s fileItemRenderer) MinSize() fyne.Size {

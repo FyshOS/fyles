@@ -18,7 +18,7 @@ func main() {
 	a := app.NewWithID("io.fyne.fyles")
 	a.SetIcon(resourceIconPng)
 	w := a.NewWindow(winTitle)
-	fileItemMin = fyne.NewSize(fileIconCellWidth, fileIconSize+fileTextSize+theme.Padding())
+	fileItemMin = fyne.NewSize(fileIconCellWidth, fileIconSize+fileTextSize+theme.InnerPadding())
 
 	path, _ := os.Getwd()
 	if len(os.Args) > 1 {
