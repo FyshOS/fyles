@@ -28,7 +28,8 @@ func main() {
 	ui := &fyles{win: w, filter: filterHidden()}
 	tools := ui.makeToolbar()
 	ui.items = container.NewGridWrap(fileItemMin)
-	ui.fileScroll = container.NewScroll(ui.items)
+	tapper := newDirTapPanel(ui)
+	ui.fileScroll = container.NewScroll(container.NewMax(tapper, ui.items))
 	fileTree := ui.makeFilesPanel(current)
 	ui.setDirectory(current)
 	mainSplit := container.NewHSplit(fileTree, ui.fileScroll)

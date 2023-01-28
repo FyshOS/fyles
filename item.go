@@ -31,6 +31,11 @@ func (i *fileItem) Tapped(_ *fyne.PointEvent) {
 	i.parent.itemTapped(i)
 }
 
+func (i *fileItem) TappedSecondary(ev *fyne.PointEvent) {
+	m := i.buildMenu(i.location)
+	widget.ShowPopUpMenuAtPosition(m, i.parent.win.Canvas(), ev.AbsolutePosition)
+}
+
 func (i *fileItem) CreateRenderer() fyne.WidgetRenderer {
 	background := canvas.NewRectangle(theme.SelectionColor())
 	background.Hide()
@@ -45,6 +50,14 @@ func (i *fileItem) CreateRenderer() fyne.WidgetRenderer {
 		text:       text,
 		objects:    []fyne.CanvasObject{background, icon, text},
 	}
+}
+
+func (i *fileItem) buildMenu(u fyne.URI) *fyne.Menu {
+	return fyne.NewMenu(u.Name(),
+		fyne.NewMenuItem("Copy path", func() {
+			i.parent.win.Clipboard().SetContent(u.Path())
+		}),
+	)
 }
 
 func fileName(path fyne.URI) string {
