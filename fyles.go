@@ -5,17 +5,18 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
+
+	"github.com/fyne-io/fyles/pkg/fyles"
 )
 
-type fyles struct {
+type fylesUI struct {
 	win        fyne.Window
 	pwd        fyne.URI
 	fileScroll *container.Scroll
-	items      *fyne.Container
+	items      *panel.Panel
 	filePath   *widget.Label
 
-	current *fileItem
-	filter  storage.FileFilter
+	filter storage.FileFilter
 }
 
 type filter struct{}

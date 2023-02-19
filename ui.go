@@ -14,63 +14,32 @@ import (
 	xWidget "fyne.io/x/fyne/widget"
 )
 
-func (ui *fyles) setDirectory(u fyne.URI) {
+func (ui *fylesUI) setDirectory(u fyne.URI) {
 	ui.pwd = u
 	ui.itemTapped(nil)
-
-	var items []fyne.CanvasObject
-	parent, err := storage.Parent(u)
-	if err == nil {
-		up := &fileItem{parent: ui, name: "(Parent)", location: parent, dir: true}
-		up.ExtendBaseWidget(up)
-		items = append(items, up)
-	}
-	list, err := storage.List(u)
-	if err != nil {
-		fyne.LogError("Could not read dir", err)
-	} else {
-		for _, item := range list {
-			if !ui.filter.Matches(item) {
-				continue
-			}
-
-			dir, _ := storage.CanList(item)
-			items = append(items, newFileItem(item, dir, ui))
-		}
-	}
-
-	ui.items.Objects = items
-	ui.items.Refresh()
+	ui.items.SetDir(u)
 	ui.fileScroll.ScrollToTop()
 	ui.filePath.SetText(u.Path())
 	ui.win.SetTitle(winTitle + " : " + u.Name())
 }
 
-func (ui *fyles) itemTapped(item *fileItem) {
-	if ui.current != nil {
-		ui.current.isCurrent = false
-		ui.current.Refresh()
-	}
-
-	if item == nil {
+func (ui *fylesUI) itemTapped(u fyne.URI) {
+	if u == nil {
 		return
 	}
 
-	item.isCurrent = true
-	item.Refresh()
-	if item.dir {
+	listable, err := storage.CanList(u)
+	if err == nil && listable {
 		go func() {
 			// show it is selected then change
 			time.Sleep(time.Millisecond * 120)
-			ui.setDirectory(item.location)
+			ui.setDirectory(u)
 		}()
 		return
 	}
-
-	ui.current = item
 }
 
-func (ui *fyles) makeFilesPanel(u fyne.URI) *xWidget.FileTree {
+func (ui *fylesUI) makeFilesPanel(u fyne.URI) *xWidget.FileTree {
 	vol := filepath.VolumeName(u.Path())
 	if vol == "" {
 		vol = "/"
@@ -108,7 +77,7 @@ func openParent(files *xWidget.FileTree, path fyne.URI) {
 	}
 }
 
-func (ui *fyles) makeToolbar() *fyne.Container {
+func (ui *fylesUI) makeToolbar() *fyne.Container {
 	l := widget.NewLabel("")
 	ui.filePath = l
 

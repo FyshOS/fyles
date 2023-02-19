@@ -1,4 +1,4 @@
-package main
+package panel
 
 import (
 	"path/filepath"
@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	fileIconSize      = 72
+	fileIconSize      = 64
 	fileTextSize      = 20
 	fileIconCellWidth = fileIconSize * 1.25
 )
@@ -19,7 +19,7 @@ var fileItemMin fyne.Size
 
 type fileItem struct {
 	widget.BaseWidget
-	parent    *fyles
+	parent    *Panel
 	isCurrent bool
 
 	name     string
@@ -28,7 +28,14 @@ type fileItem struct {
 }
 
 func (i *fileItem) Tapped(_ *fyne.PointEvent) {
-	i.parent.itemTapped(i)
+	if i.parent.current != nil {
+		i.parent.current.isCurrent = false
+		i.parent.current.Refresh()
+	}
+	i.isCurrent = true
+	i.parent.current = i
+	i.Refresh()
+	i.parent.cb(i.location)
 }
 
 func (i *fileItem) TappedSecondary(ev *fyne.PointEvent) {
@@ -66,9 +73,9 @@ func fileName(path fyne.URI) string {
 	return name[:len(name)-len(ext)]
 }
 
-func newFileItem(location fyne.URI, dir bool, ui *fyles) *fileItem {
+func newFileItem(location fyne.URI, dir bool, p *Panel) *fileItem {
 	item := &fileItem{
-		parent:   ui,
+		parent:   p,
 		location: location,
 		dir:      dir,
 	}

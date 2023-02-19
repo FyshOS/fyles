@@ -11,7 +11,7 @@ import (
 type dirTapPanel struct {
 	widget.BaseWidget
 
-	parent *fyles
+	parent *fylesUI
 }
 
 func (d *dirTapPanel) CreateRenderer() fyne.WidgetRenderer {
@@ -31,7 +31,7 @@ func (d *dirTapPanel) buildMenu(u fyne.URI) *fyne.Menu {
 	)
 }
 
-func newDirTapPanel(ui *fyles) *dirTapPanel {
+func newDirTapPanel(ui *fylesUI) *dirTapPanel {
 	d := &dirTapPanel{parent: ui}
 	d.ExtendBaseWidget(d)
 	return d
