@@ -13,7 +13,7 @@ type fylesUI struct {
 	win        fyne.Window
 	pwd        fyne.URI
 	fileScroll *container.Scroll
-	items      *panel.Panel
+	items      *fyles.Panel
 	filePath   *widget.Label
 
 	filter storage.FileFilter

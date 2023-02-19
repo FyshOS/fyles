@@ -1,4 +1,4 @@
-package panel
+package fyles
 
 import (
 	"fyne.io/fyne/v2"
