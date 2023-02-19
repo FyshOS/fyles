@@ -1,4 +1,4 @@
-module github.com/fyne-io/fyles
+module github.com/fyshos/fyles
 
 go 1.15
 

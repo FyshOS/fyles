@@ -10,13 +10,13 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/storage"
 
-	"github.com/fyne-io/fyles/pkg/fyles"
+	"github.com/fyshos/fyles/pkg/fyles"
 )
 
 const winTitle = "Fyles"
 
 func main() {
-	a := app.NewWithID("io.fyne.fyles")
+	a := app.NewWithID("com.fyshos.fyles")
 	a.SetIcon(resourceIconPng)
 	w := a.NewWindow(winTitle)
 

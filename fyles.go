@@ -6,7 +6,7 @@ import (
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 
-	"github.com/fyne-io/fyles/pkg/fyles"
+	"github.com/fyshos/fyles/pkg/fyles"
 )
 
 type fylesUI struct {
