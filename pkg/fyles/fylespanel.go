@@ -10,6 +10,8 @@ import (
 
 type Panel struct {
 	widget.BaseWidget
+	
+	HideParent bool
 
 	content *fyne.Container
 	cb      func(fyne.URI)
@@ -32,11 +34,13 @@ func (p *Panel) CreateRenderer() fyne.WidgetRenderer {
 
 func (p *Panel) SetDir(u fyne.URI) {
 	var items []fyne.CanvasObject
-	parent, err := storage.Parent(u)
-	if err == nil {
-		up := &fileItem{parent: p, name: "(Parent)", location: parent, dir: true}
-		up.ExtendBaseWidget(up)
-		items = append(items, up)
+	if !p.HideParent {
+		parent, err := storage.Parent(u)
+		if err == nil {
+			up := &fileItem{parent: p, name: "(Parent)", location: parent, dir: true}
+			up.ExtendBaseWidget(up)
+			items = append(items, up)
+		}
 	}
 	list, err := storage.List(u)
 	if err != nil {
