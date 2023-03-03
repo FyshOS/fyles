@@ -33,9 +33,9 @@ func main() {
 	fileTree := ui.makeFilesPanel(current)
 	ui.setDirectory(current)
 	mainSplit := container.NewHSplit(fileTree, ui.fileScroll)
-	mainSplit.Offset = 0.35
+	mainSplit.Offset = 0.3
 
 	w.SetContent(container.NewBorder(tools, nil, nil, nil, mainSplit))
-	w.Resize(fyne.NewSize(640, 360))
+	w.Resize(fyne.NewSize(550, 310))
 	w.ShowAndRun()
 }
