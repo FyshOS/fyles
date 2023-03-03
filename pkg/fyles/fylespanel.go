@@ -50,6 +50,9 @@ func (p *Panel) SetDir(u fyne.URI) {
 			//if !ui.filter.Matches(item) {
 			//	continue
 			//}
+			if item.Name()[0] == '.' {
+				continue
+			}
 
 			dir, _ := storage.CanList(item)
 			items = append(items, newFileItem(item, dir, p))
