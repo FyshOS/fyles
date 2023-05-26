@@ -15,6 +15,12 @@ const (
 	fileIconCellWidth = fileIconSize * 1.25
 )
 
+type fileData struct {
+	name     string
+	location fyne.URI
+	dir      bool
+}
+
 var fileItemMin fyne.Size
 
 type fileItem struct {
@@ -22,9 +28,7 @@ type fileItem struct {
 	parent    *Panel
 	isCurrent bool
 
-	name     string
-	location fyne.URI
-	dir      bool
+	data *fileData
 }
 
 func (i *fileItem) Tapped(_ *fyne.PointEvent) {
@@ -35,20 +39,20 @@ func (i *fileItem) Tapped(_ *fyne.PointEvent) {
 	i.isCurrent = true
 	i.parent.current = i
 	i.Refresh()
-	i.parent.cb(i.location)
+	i.parent.cb(i.data.location)
 }
 
 func (i *fileItem) TappedSecondary(ev *fyne.PointEvent) {
-	m := i.buildMenu(i.location)
+	m := i.buildMenu(i.data.location)
 	widget.ShowPopUpMenuAtPosition(m, i.parent.win.Canvas(), ev.AbsolutePosition)
 }
 
 func (i *fileItem) CreateRenderer() fyne.WidgetRenderer {
 	background := canvas.NewRectangle(theme.SelectionColor())
 	background.Hide()
-	text := widget.NewLabelWithStyle(i.name, fyne.TextAlignCenter, fyne.TextStyle{})
+	text := widget.NewLabelWithStyle("FileName", fyne.TextAlignCenter, fyne.TextStyle{})
 	text.Wrapping = fyne.TextTruncate
-	icon := widget.NewFileIcon(i.location)
+	icon := widget.NewFileIcon(nil)
 
 	return &fileItemRenderer{
 		item:       i,
@@ -67,27 +71,15 @@ func (i *fileItem) buildMenu(u fyne.URI) *fyne.Menu {
 	)
 }
 
+func (i *fileItem) setData(d *fileData) {
+	i.data = d
+	i.Refresh()
+}
+
 func fileName(path fyne.URI) string {
 	name := path.Name()
 	ext := filepath.Ext(name[1:])
 	return name[:len(name)-len(ext)]
-}
-
-func newFileItem(location fyne.URI, dir bool, p *Panel) *fileItem {
-	item := &fileItem{
-		parent:   p,
-		location: location,
-		dir:      dir,
-	}
-
-	if dir {
-		item.name = location.Name()
-	} else {
-		item.name = fileName(location)
-	}
-
-	item.ExtendBaseWidget(item)
-	return item
 }
 
 type fileItemRenderer struct {
@@ -123,6 +115,9 @@ func (s fileItemRenderer) Refresh() {
 		s.background.Hide()
 	}
 	s.background.Refresh()
+
+	s.text.SetText(s.item.data.name)
+	s.icon.SetURI(s.item.data.location)
 	canvas.Refresh(s.item)
 }
 

@@ -2,29 +2,45 @@ package fyles
 
 import (
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+
+	xWidget "fyne.io/x/fyne/widget"
 )
 
 type Panel struct {
 	widget.BaseWidget
-	
-	HideParent bool
 
-	content *fyne.Container
+	HideParent bool
+	items      []*fileData
+
+	content *xWidget.GridWrap
 	cb      func(fyne.URI)
 	win     fyne.Window
 	current *fileItem
 }
 
 func NewFylesPanel(c func(fyne.URI), w fyne.Window) *Panel {
-	fileItemMin := fyne.NewSize(fileIconCellWidth, fileIconSize+fileTextSize+theme.InnerPadding())
+	fileItemMin = fyne.NewSize(fileIconCellWidth, fileIconSize+fileTextSize+theme.InnerPadding())
 
-	uiItems := container.NewGridWrap(fileItemMin)
-	p := &Panel{content: uiItems, cb: c, win: w}
+	p := &Panel{cb: c, win: w}
 	p.ExtendBaseWidget(p)
+
+	p.content = xWidget.NewGridWrap(
+		func() int {
+			return len(p.items)
+		},
+		func() fyne.CanvasObject {
+			icon := &fileItem{parent: p}
+			icon.ExtendBaseWidget(icon)
+			return icon
+		},
+		func(id xWidget.GridWrapItemID, obj fyne.CanvasObject) {
+			icon := obj.(*fileItem)
+			icon.setData(p.items[id])
+		})
+
 	return p
 }
 
@@ -33,13 +49,11 @@ func (p *Panel) CreateRenderer() fyne.WidgetRenderer {
 }
 
 func (p *Panel) SetDir(u fyne.URI) {
-	var items []fyne.CanvasObject
+	var items []*fileData
 	if !p.HideParent {
 		parent, err := storage.Parent(u)
 		if err == nil {
-			up := &fileItem{parent: p, name: "(Parent)", location: parent, dir: true}
-			up.ExtendBaseWidget(up)
-			items = append(items, up)
+			items = append(items, &fileData{name: "(Parent)", location: parent, dir: true})
 		}
 	}
 	list, err := storage.List(u)
@@ -55,10 +69,10 @@ func (p *Panel) SetDir(u fyne.URI) {
 			}
 
 			dir, _ := storage.CanList(item)
-			items = append(items, newFileItem(item, dir, p))
+			items = append(items, &fileData{name: fileName(item), location: item, dir: dir})
 		}
 	}
 
-	p.content.Objects = items
+	p.items = items
 	p.content.Refresh()
 }
