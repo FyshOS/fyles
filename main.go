@@ -36,6 +36,6 @@ func main() {
 	mainSplit.Offset = 0.3
 
 	w.SetContent(container.NewBorder(tools, nil, nil, nil, mainSplit))
-	w.Resize(fyne.NewSize(550, 310))
+	w.Resize(fyne.NewSize(555, 310))
 	w.ShowAndRun()
 }

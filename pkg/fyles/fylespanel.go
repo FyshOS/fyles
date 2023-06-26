@@ -5,8 +5,6 @@ import (
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-
-	xWidget "fyne.io/x/fyne/widget"
 )
 
 type Panel struct {
@@ -15,10 +13,10 @@ type Panel struct {
 	HideParent bool
 	items      []*fileData
 
-	content *xWidget.GridWrap
-	cb      func(fyne.URI)
-	win     fyne.Window
-	current *fileItem
+	content  *widget.GridWrap
+	cb       func(fyne.URI)
+	selected widget.GridWrapItemID
+	win      fyne.Window
 }
 
 func NewFylesPanel(c func(fyne.URI), w fyne.Window) *Panel {
@@ -27,7 +25,7 @@ func NewFylesPanel(c func(fyne.URI), w fyne.Window) *Panel {
 	p := &Panel{cb: c, win: w}
 	p.ExtendBaseWidget(p)
 
-	p.content = xWidget.NewGridWrap(
+	p.content = widget.NewGridWrap(
 		func() int {
 			return len(p.items)
 		},
@@ -36,10 +34,14 @@ func NewFylesPanel(c func(fyne.URI), w fyne.Window) *Panel {
 			icon.ExtendBaseWidget(icon)
 			return icon
 		},
-		func(id xWidget.GridWrapItemID, obj fyne.CanvasObject) {
+		func(id widget.GridWrapItemID, obj fyne.CanvasObject) {
 			icon := obj.(*fileItem)
 			icon.setData(p.items[id])
 		})
+	p.content.OnSelected = func(id widget.GridWrapItemID) {
+		p.selected = id
+		p.cb(p.items[id].location)
+	}
 
 	return p
 }
@@ -49,6 +51,8 @@ func (p *Panel) CreateRenderer() fyne.WidgetRenderer {
 }
 
 func (p *Panel) SetDir(u fyne.URI) {
+	p.content.Unselect(p.selected)
+
 	var items []*fileData
 	if !p.HideParent {
 		parent, err := storage.Parent(u)
