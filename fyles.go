@@ -5,6 +5,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
+	xWidget "fyne.io/x/fyne/widget"
 
 	"github.com/fyshos/fyles/pkg/fyles"
 )
@@ -13,6 +14,7 @@ type fylesUI struct {
 	win        fyne.Window
 	pwd        fyne.URI
 	fileScroll *container.Scroll
+	fileTree   *xWidget.FileTree
 	items      *fyles.Panel
 	filePath   *widget.Label
 

@@ -19,6 +19,7 @@ func main() {
 	a := app.NewWithID("com.fyshos.fyles")
 	a.SetIcon(resourceIconPng)
 	w := a.NewWindow(winTitle)
+	w.SetPadded(false)
 
 	path, _ := os.Getwd()
 	if len(os.Args) > 1 {
@@ -30,9 +31,9 @@ func main() {
 	ui.items = fyles.NewFylesPanel(ui.itemTapped, w)
 	tapper := newDirTapPanel(ui)
 	ui.fileScroll = container.NewScroll(container.NewMax(tapper, ui.items))
-	fileTree := ui.makeFilesPanel(current)
+	ui.fileTree = ui.makeFilesPanel(current)
 	ui.setDirectory(current)
-	mainSplit := container.NewHSplit(fileTree, ui.fileScroll)
+	mainSplit := container.NewHSplit(ui.fileTree, ui.fileScroll)
 	mainSplit.Offset = 0.3
 
 	w.SetContent(container.NewBorder(tools, nil, nil, nil, mainSplit))

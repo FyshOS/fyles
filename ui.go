@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
@@ -17,7 +18,11 @@ import (
 
 func (ui *fylesUI) setDirectory(u fyne.URI) {
 	ui.pwd = u
-	ui.itemTapped(nil)
+	dirStr := u.String()
+	if dirStr[len(dirStr)-1] == '/' && dirStr != "file:///" {
+		dirStr = dirStr[:len(dirStr)-1]
+	}
+	ui.fileTree.Select(dirStr)
 	ui.items.SetDir(u)
 	ui.fileScroll.ScrollToTop()
 	ui.filePath.SetText(u.Path())
@@ -33,7 +38,7 @@ func (ui *fylesUI) itemTapped(u fyne.URI) {
 	if err == nil && listable {
 		go func() {
 			// show it is selected then change
-			time.Sleep(time.Millisecond * 120)
+			time.Sleep(canvas.DurationShort)
 			ui.setDirectory(u)
 		}()
 		return
@@ -53,12 +58,14 @@ func (ui *fylesUI) makeFilesPanel(u fyne.URI) *xWidget.FileTree {
 	}
 
 	files.OnSelected = func(uid widget.TreeNodeID) {
+		if uid == "file://" {
+			uid = "file:///"
+		}
 		u, _ := storage.ParseURI(uid)
 		ui.setDirectory(u)
 	}
 
 	openParent(files, u)
-	files.Select(u.String())
 	return files
 }
 
