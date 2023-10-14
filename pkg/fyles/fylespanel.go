@@ -3,7 +3,6 @@ package fyles
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/storage"
-	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -20,8 +19,6 @@ type Panel struct {
 }
 
 func NewFylesPanel(c func(fyne.URI), w fyne.Window) *Panel {
-	fileItemMin = fyne.NewSize(fileIconCellWidth, fileIconSize+fileTextSize+theme.InnerPadding())
-
 	p := &Panel{cb: c, win: w}
 	p.ExtendBaseWidget(p)
 
