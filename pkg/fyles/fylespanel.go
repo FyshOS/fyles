@@ -10,6 +10,7 @@ type Panel struct {
 	widget.BaseWidget
 
 	HideParent bool
+	Filter     storage.FileFilter
 	items      []*fileData
 
 	content  *widget.GridWrap
@@ -77,9 +78,9 @@ func (p *Panel) SetListing(u []fyne.URI) {
 
 func (p *Panel) addListing(list []fyne.URI, items []*fileData) {
 	for _, item := range list {
-		//if !ui.filter.Matches(item) {
-		//	continue
-		//}
+		if !p.Filter.Matches(item) {
+			continue
+		}
 		if item.Name()[0] == '.' {
 			continue
 		}

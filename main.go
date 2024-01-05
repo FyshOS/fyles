@@ -29,6 +29,7 @@ func main() {
 	ui := &fylesUI{win: w, filter: filterHidden()}
 	tools := ui.makeToolbar()
 	ui.items = fyles.NewFylesPanel(ui.itemTapped, w)
+	ui.items.Filter = ui.filter
 	tapper := newDirTapPanel(ui)
 	ui.fileScroll = container.NewScroll(container.NewMax(tapper, ui.items))
 	ui.fileTree = ui.makeFilesPanel(current)
