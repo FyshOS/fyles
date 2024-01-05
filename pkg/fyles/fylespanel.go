@@ -47,6 +47,7 @@ func (p *Panel) CreateRenderer() fyne.WidgetRenderer {
 	return widget.NewSimpleRenderer(p.content)
 }
 
+// SetDir asks the fyles panel to display the specified directory
 func (p *Panel) SetDir(u fyne.URI) {
 	p.content.Unselect(p.selected)
 
@@ -61,17 +62,30 @@ func (p *Panel) SetDir(u fyne.URI) {
 	if err != nil {
 		fyne.LogError("Could not read dir", err)
 	} else {
-		for _, item := range list {
-			//if !ui.filter.Matches(item) {
-			//	continue
-			//}
-			if item.Name()[0] == '.' {
-				continue
-			}
+		p.addListing(list, items)
+	}
+}
 
-			dir, _ := storage.CanList(item)
-			items = append(items, &fileData{name: fileName(item), location: item, dir: dir})
+// SetListing asks the fyles panel to display a list of URIs.
+// This supports manually creating a collection of items not in a standard directory.
+func (p *Panel) SetListing(u []fyne.URI) {
+	p.content.Unselect(p.selected)
+
+	var items []*fileData
+	p.addListing(u, items)
+}
+
+func (p *Panel) addListing(list []fyne.URI, items []*fileData) {
+	for _, item := range list {
+		//if !ui.filter.Matches(item) {
+		//	continue
+		//}
+		if item.Name()[0] == '.' {
+			continue
 		}
+
+		dir, _ := storage.CanList(item)
+		items = append(items, &fileData{name: fileName(item), location: item, dir: dir})
 	}
 
 	p.items = items
