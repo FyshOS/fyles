@@ -36,7 +36,7 @@ type dirFilter struct {
 }
 
 func (f *dirFilter) Matches(u fyne.URI) bool {
-	if !f.FileFilter.Matches(u) {
+	if f.FileFilter != nil && !f.FileFilter.Matches(u) {
 		return false
 	}
 

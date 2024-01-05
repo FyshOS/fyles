@@ -78,10 +78,7 @@ func (p *Panel) SetListing(u []fyne.URI) {
 
 func (p *Panel) addListing(list []fyne.URI, items []*fileData) {
 	for _, item := range list {
-		if !p.Filter.Matches(item) {
-			continue
-		}
-		if item.Name()[0] == '.' {
+		if p.Filter != nil && !p.Filter.Matches(item) {
 			continue
 		}
 
