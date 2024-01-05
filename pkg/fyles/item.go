@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	fileIconSize       = 64
-	fileIconCellWidth  = fileIconSize * 1.25
+	fileIconSize      = 64
+	fileIconCellWidth = fileIconSize * 1.25
 )
 
 type fileData struct {
@@ -21,7 +21,7 @@ type fileData struct {
 
 type fileItem struct {
 	widget.BaseWidget
-	parent    *Panel
+	parent *Panel
 
 	data *fileData
 }

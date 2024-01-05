@@ -31,7 +31,7 @@ func main() {
 	ui.items = fyles.NewFylesPanel(ui.itemTapped, w)
 	ui.items.Filter = ui.filter
 	tapper := newDirTapPanel(ui)
-	ui.fileScroll = container.NewScroll(container.NewMax(tapper, ui.items))
+	ui.fileScroll = container.NewScroll(container.NewStack(tapper, ui.items))
 	ui.fileTree = ui.makeFilesPanel(current)
 	ui.setDirectory(current)
 	mainSplit := container.NewHSplit(ui.fileTree, ui.fileScroll)
