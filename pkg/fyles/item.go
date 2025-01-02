@@ -27,13 +27,7 @@ type fileItem struct {
 }
 
 func (i *fileItem) Tapped(*fyne.PointEvent) {
-	for id, item := range i.parent.items {
-		if item.location == i.data.location {
-			i.parent.content.Select(id)
-
-			return
-		}
-	}
+	i.tapMe()
 }
 
 func (i *fileItem) TappedSecondary(ev *fyne.PointEvent) {
@@ -57,7 +51,9 @@ func (i *fileItem) CreateRenderer() fyne.WidgetRenderer {
 }
 
 func (i *fileItem) buildMenu(u fyne.URI) *fyne.Menu {
+	openItem := fyne.NewMenuItem("Open", i.tapMe)
 	return fyne.NewMenu(u.Name(),
+		openItem,
 		fyne.NewMenuItem("Copy path", func() {
 			i.parent.win.Clipboard().SetContent(u.Path())
 		}),
@@ -71,6 +67,16 @@ func (i *fileItem) setData(d *fileData) {
 	i.data.name = i.data.name[:len(i.data.name)-len(ext)]
 
 	i.Refresh()
+}
+
+func (i *fileItem) tapMe() {
+	for id, item := range i.parent.items {
+		if item.location == i.data.location {
+			i.parent.content.Select(id)
+
+			return
+		}
+	}
 }
 
 func fileName(path fyne.URI) string {

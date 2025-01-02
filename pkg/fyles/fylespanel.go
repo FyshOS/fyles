@@ -44,6 +44,10 @@ func NewFylesPanel(c func(fyne.URI), w fyne.Window) *Panel {
 	return p
 }
 
+func (p *Panel) ClearSelection() {
+	p.content.Unselect(p.selected)
+}
+
 func (p *Panel) CreateRenderer() fyne.WidgetRenderer {
 	return widget.NewSimpleRenderer(p.content)
 }
