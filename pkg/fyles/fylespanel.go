@@ -1,6 +1,8 @@
 package fyles
 
 import (
+	"github.com/FyshOS/appie"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
@@ -17,10 +19,11 @@ type Panel struct {
 	cb       func(fyne.URI)
 	selected widget.GridWrapItemID
 	win      fyne.Window
+	apps     appie.Provider
 }
 
 func NewFylesPanel(c func(fyne.URI), w fyne.Window) *Panel {
-	p := &Panel{cb: c, win: w}
+	p := &Panel{cb: c, win: w, apps: appie.SystemProvider()}
 	p.ExtendBaseWidget(p)
 
 	p.content = widget.NewGridWrap(

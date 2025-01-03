@@ -1,7 +1,11 @@
 package fyles
 
 import (
+	"os/exec"
 	"path/filepath"
+	"strings"
+
+	"github.com/FyshOS/appie"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -50,10 +54,47 @@ func (i *fileItem) CreateRenderer() fyne.WidgetRenderer {
 	}
 }
 
+func mimeForURI(u fyne.URI) (string, error) {
+	file := u.Name()
+	if u.Scheme() == "file" {
+		file = u.Path() // better specificity if we can
+	}
+
+	cmd := exec.Command("xdg-mime", "query", "filetype", file)
+	mime, err := cmd.Output()
+	return strings.TrimSpace(string(mime)), err
+}
+
 func (i *fileItem) buildMenu(u fyne.URI) *fyne.Menu {
 	openItem := fyne.NewMenuItem("Open", i.tapMe)
+	openWithItem := fyne.NewMenuItem("Open With...", nil)
+
+	appItems := []*fyne.MenuItem{}
+	mime, err := mimeForURI(u)
+	if err != nil {
+		fyne.LogError("failed to lookup file mime", err)
+	} else if mime != "" {
+		apps := i.appsForMime(mime)
+		appItems = make([]*fyne.MenuItem, len(apps))
+
+		for id, a := range apps {
+			match := a
+			item := fyne.NewMenuItem(a.Name(), func() {
+				i.openWith(match)
+			})
+			item.Icon = a.Icon("", 64)
+
+			appItems[id] = item
+		}
+	}
+
+	openWithItem.ChildMenu = fyne.NewMenu("Open With", appItems...)
+	if len(appItems) == 0 {
+		openWithItem.Disabled = true
+	}
+
 	return fyne.NewMenu(u.Name(),
-		openItem,
+		openItem, openWithItem,
 		fyne.NewMenuItem("Copy path", func() {
 			i.parent.win.Clipboard().SetContent(u.Path())
 		}),
@@ -120,4 +161,37 @@ func (s *fileItemRenderer) Objects() []fyne.CanvasObject {
 }
 
 func (s *fileItemRenderer) Destroy() {
+}
+
+func (i *fileItem) appsForMime(mime string) []appie.AppData {
+	ret := []appie.AppData{}
+	if i.parent.apps == nil {
+		return ret
+	}
+
+	apps := i.parent.apps.AvailableApps()
+	for _, a := range apps {
+		for _, m := range a.MimeTypes() {
+			if m == mime {
+				ret = append(ret, a)
+				break
+			}
+		}
+	}
+
+	return ret
+}
+
+func (i *fileItem) openWith(app appie.AppData) {
+	i.parent.content.UnselectAll()
+
+	file := i.data.location.Name()
+	if i.data.location.Scheme() == "file" {
+		file = i.data.location.Path() // better specificity if we can
+	}
+
+	err := app.RunWithParameters([]string{file}, nil)
+	if err != nil {
+		fyne.LogError("Failed to launch app", err)
+	}
 }
