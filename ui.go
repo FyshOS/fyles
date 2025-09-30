@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"os/user"
 	"path/filepath"
 	"strings"
@@ -18,6 +17,7 @@ import (
 	"fyne.io/fyne/v2/storage/repository"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/FyshOS/fyles/pkg/fyles"
 
 	xWidget "fyne.io/x/fyne/widget"
 )
@@ -52,33 +52,13 @@ func (ui *fylesUI) itemTapped(u fyne.URI) {
 		return
 	}
 
-	file := u.Name()
-	if u.Scheme() == "file" {
-		file = u.Path() // better specificity if we can
-	}
+	go func() {
+		// show it is selected then change
+		time.Sleep(canvas.DurationShort)
+		fyne.Do(ui.items.ClearSelection)
+	}()
 
-	cmd := exec.Command("xdg-mime", "query", "filetype", file)
-	mime, err := cmd.Output()
-	if err != nil {
-		dialog.ShowError(err, ui.win)
-		return
-	}
-
-	cmd = exec.Command("xdg-mime", "query", "default", strings.TrimSpace(string(mime)))
-	entry, err := cmd.Output()
-	if err != nil {
-		dialog.ShowError(err, ui.win)
-		return
-	}
-	if strings.TrimSpace(string(entry)) == "" {
-		return // should this show an error?
-	}
-
-	ui.items.ClearSelection()
-	cmd = exec.Command("xdg-open", u.String())
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err = cmd.Start()
+	err = fyles.Open(u)
 	if err != nil {
 		dialog.ShowError(err, ui.win)
 	}
