@@ -70,6 +70,11 @@ func (p *Panel) SetDir(u fyne.URI) {
 	var items []*fileData
 	if !p.HideParent {
 		parent, err := storage.Parent(u)
+		trim := parent.String()
+		if trim[len(trim)-1] == '/' {
+			trim = trim[:len(trim)-1]
+		}
+		parent, _ = storage.ParseURI(trim)
 		if err == nil {
 			items = append(items, &fileData{name: "(Parent)", location: parent, dir: true})
 		}
