@@ -5,7 +5,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"fyne.io/fyne/v2/theme"
 	"github.com/FyshOS/appie"
+	"github.com/fyshos/fancyfs"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -44,12 +46,14 @@ func (i *fileItem) CreateRenderer() fyne.WidgetRenderer {
 	text.Truncation = fyne.TextTruncateEllipsis
 	text.Wrapping = fyne.TextWrapBreak
 	icon := widget.NewFileIcon(nil)
+	over := &canvas.Image{}
 
 	return &fileItemRenderer{
 		item:         i,
 		icon:         icon,
 		text:         text,
-		objects:      []fyne.CanvasObject{icon, text},
+		over:         over,
+		objects:      []fyne.CanvasObject{icon, text, over},
 		fileTextSize: widget.NewLabel("M\nM").MinSize().Height, // cache two-line label height,
 	}
 }
@@ -132,12 +136,19 @@ type fileItemRenderer struct {
 
 	icon    *widget.FileIcon
 	text    *widget.Label
+	over    *canvas.Image
 	objects []fyne.CanvasObject
 }
 
 func (s *fileItemRenderer) Layout(size fyne.Size) {
 	s.icon.Resize(fyne.NewSize(fileIconSize, fileIconSize))
 	s.icon.Move(fyne.NewPos((size.Width-fileIconSize)/2, 0))
+
+	folderInsetX := float32(10)
+	folderInsetBottom := float32(25)
+	folderInsetTop := float32(20)
+	s.over.Resize(fyne.NewSize(fileIconSize-folderInsetX*2, fileIconSize-folderInsetX-folderInsetBottom))
+	s.over.Move(s.icon.Position().AddXY(folderInsetX, folderInsetTop))
 
 	s.text.Alignment = fyne.TextAlignCenter
 	s.text.Resize(fyne.NewSize(size.Width, s.fileTextSize))
@@ -153,6 +164,27 @@ func (s *fileItemRenderer) Refresh() {
 
 	s.text.SetText(s.item.data.name)
 	s.icon.SetURI(s.item.data.location)
+
+	ff, err := fancyfs.DetailsForFolder(s.item.data.location)
+	if ff != nil && err == nil {
+		if ff.BackgroundURI != nil {
+			s.over.File = ff.BackgroundURI.Path()
+		} else {
+			s.over.File = ""
+		}
+		if ff.BackgroundResource != nil {
+			s.over.Resource = theme.NewColoredResource(ff.BackgroundResource, theme.ColorNameBackground)
+		} else {
+			s.over.Resource = nil
+		}
+		s.over.FillMode = ff.BackgroundFill
+	} else {
+		s.over.File = ""
+		s.over.Resource = nil
+		s.over.Image = nil
+	}
+
+	s.over.Refresh()
 	canvas.Refresh(s.item)
 }
 

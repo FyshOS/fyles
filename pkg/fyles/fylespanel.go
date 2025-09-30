@@ -1,7 +1,10 @@
 package fyles
 
 import (
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
 	"github.com/FyshOS/appie"
+	"github.com/fyshos/fancyfs"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/storage"
@@ -16,6 +19,7 @@ type Panel struct {
 	items      []*fileData
 
 	content  *widget.GridWrap
+	bg       *canvas.Image
 	cb       func(fyne.URI)
 	selected widget.GridWrapItemID
 	win      fyne.Window
@@ -44,6 +48,10 @@ func NewFylesPanel(c func(fyne.URI), w fyne.Window) *Panel {
 		p.cb(p.items[id].location)
 	}
 
+	p.bg = &canvas.Image{}
+	p.bg.Translucency = 0.7
+	p.bg.FillMode = canvas.ImageFillCover
+
 	return p
 }
 
@@ -52,7 +60,7 @@ func (p *Panel) ClearSelection() {
 }
 
 func (p *Panel) CreateRenderer() fyne.WidgetRenderer {
-	return widget.NewSimpleRenderer(p.content)
+	return widget.NewSimpleRenderer(container.NewStack(p.bg, p.content))
 }
 
 // SetDir asks the fyles panel to display the specified directory
@@ -72,6 +80,30 @@ func (p *Panel) SetDir(u fyne.URI) {
 	} else {
 		p.addListing(list, items)
 	}
+
+	ff, err := fancyfs.DetailsForFolder(u)
+	if ff == nil || err != nil {
+		if err != nil && err != fancyfs.ErrNoMetadata {
+			fyne.LogError("Could not read dir metadata", err)
+		}
+
+		// reset
+		p.bg.File = ""
+		p.bg.Resource = nil
+		p.bg.Image = nil
+		p.bg.Refresh()
+
+		return
+	}
+
+	if ff.BackgroundURI != nil {
+		p.bg.File = ff.BackgroundURI.Path()
+	} else {
+		p.bg.File = ""
+	}
+	p.bg.Resource = ff.BackgroundResource
+	p.bg.FillMode = ff.BackgroundFill
+	p.bg.Refresh()
 }
 
 // SetListing asks the fyles panel to display a list of URIs.
