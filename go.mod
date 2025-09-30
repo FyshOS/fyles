@@ -1,11 +1,11 @@
-module github.com/fyshos/fyles
+module github.com/FyshOS/fyles
 
 go 1.19
 
 require (
 	fyne.io/fyne/v2 v2.6.2-0.20250928194716-af93936fca00
 	fyne.io/x/fyne v0.0.0-20241224222935-5be10b3dd763
-	github.com/fyshos/fancyfs v0.0.0-20250930151016-696fe12cefc6
+	github.com/FyshOS/fancyfs v0.0.0-20250930160104-540b1faf4b09
 )
 
 require (

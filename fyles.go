@@ -7,7 +7,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	xWidget "fyne.io/x/fyne/widget"
 
-	"github.com/fyshos/fyles/pkg/fyles"
+	"github.com/FyshOS/fyles/pkg/fyles"
 )
 
 type fylesUI struct {

@@ -7,7 +7,7 @@ import (
 
 	"fyne.io/fyne/v2/theme"
 	"github.com/FyshOS/appie"
-	"github.com/fyshos/fancyfs"
+	"github.com/FyshOS/fancyfs"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"

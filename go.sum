@@ -8,6 +8,8 @@ github.com/BurntSushi/toml v1.5.0 h1:W5quZX/G/csjUnuI8SUYlsHs9M38FC7znL0lIO+DvMg
 github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/FyshOS/appie v0.0.0-20250103211310-00f097d8e19d h1:bkIQPpxGMalOufoLbLDXQ/vrVwGUbtw1jbVZE8Y6nZI=
 github.com/FyshOS/appie v0.0.0-20250103211310-00f097d8e19d/go.mod h1:Gtvb1fKDXbE9HjMtoYdB2MPSSGy6PdtMl0TC9dSF8q0=
+github.com/FyshOS/fancyfs v0.0.0-20250930160104-540b1faf4b09 h1:HfEQ+kAztupgytWI7QqzXajwhI9R54i8q4uh2xUFEDs=
+github.com/FyshOS/fancyfs v0.0.0-20250930160104-540b1faf4b09/go.mod h1:HblGbYnAlauX7EiDxpyumu2DhAcxYmJmXvP+ayF/O2g=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/felixge/fgprof v0.9.3 h1:VvyZxILNuCiUCSXtPtYmmtGvb65nqXh2QFWc0Wpf2/g=
@@ -23,8 +25,6 @@ github.com/fyne-io/image v0.1.1 h1:WH0z4H7qfvNUw5l4p3bC1q70sa5+YWVt6HCj7y4VNyA=
 github.com/fyne-io/image v0.1.1/go.mod h1:xrfYBh6yspc+KjkgdZU/ifUC9sPA5Iv7WYUBzQKK7JM=
 github.com/fyne-io/oksvg v0.2.0 h1:mxcGU2dx6nwjJsSA9PCYZDuoAcsZ/OuJlvg/Q9Njfo8=
 github.com/fyne-io/oksvg v0.2.0/go.mod h1:dJ9oEkPiWhnTFNCmRgEze+YNprJF7YRbpjgpWS4kzoI=
-github.com/fyshos/fancyfs v0.0.0-20250930151016-696fe12cefc6 h1:hCXemL151setHm0ifSlTnzqBxkihrtGO82W4VysQwls=
-github.com/fyshos/fancyfs v0.0.0-20250930151016-696fe12cefc6/go.mod h1:TRNUnAYsw95SFcnc7bP+62GezUJL5yLwfMsODw+8LJQ=
 github.com/go-gl/gl v0.0.0-20231021071112-07e5d0ea2e71 h1:5BVwOaUSBTlVZowGO6VZGw2H/zl9nrd3eCZfYV+NfQA=
 github.com/go-gl/gl v0.0.0-20231021071112-07e5d0ea2e71/go.mod h1:9YTyiznxEY1fVinfM7RvRcjRHbw2xLBJ3AAGIT0I4Nw=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20240506104042-037f3cc74f2a h1:vxnBhFDDT+xzxf1jTJKMKZw3H0swfWk9RpWbBbDK5+0=

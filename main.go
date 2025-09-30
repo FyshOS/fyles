@@ -5,7 +5,7 @@ package main
 import (
 	"os"
 
-	"github.com/fyshos/fyles/pkg/fyles"
+	"github.com/FyshOS/fyles/pkg/fyles"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
