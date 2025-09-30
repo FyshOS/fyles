@@ -45,7 +45,9 @@ func (ui *fylesUI) itemTapped(u fyne.URI) {
 		go func() {
 			// show it is selected then change
 			time.Sleep(canvas.DurationShort)
-			ui.setDirectory(u)
+			fyne.Do(func() {
+				ui.setDirectory(u)
+			})
 		}()
 		return
 	}

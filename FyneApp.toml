@@ -1,0 +1,7 @@
+[Details]
+  Icon = "Icon.png"
+  Name = "Fyles"
+  ID = "com.fyshos.fyles"
+
+ [Migrations]
+  fyneDo = true

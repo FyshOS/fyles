@@ -46,21 +46,18 @@ func main() {
 		container.NewGridWithColumns(len(panels), panels...)))
 	w.Resize(fyne.NewSize(float32(15+(540*len(panels))), 310))
 
-	changes := make(chan fyne.Settings)
-	go func() {
-		for range changes {
-			bg.FillColor = theme.OverlayBackgroundColor()
-			bg.Refresh()
+	changes := func(fyne.Settings) {
+		bg.FillColor = theme.OverlayBackgroundColor()
+		bg.Refresh()
 
-			panelColor := theme.BackgroundColor()
-			for _, p := range panels {
-				bg := p.(*fyne.Container).Objects[0]
-				bg.(*canvas.Rectangle).FillColor = panelColor
-				bg.Refresh()
-			}
+		panelColor := theme.BackgroundColor()
+		for _, p := range panels {
+			bg := p.(*fyne.Container).Objects[0]
+			bg.(*canvas.Rectangle).FillColor = panelColor
+			bg.Refresh()
 		}
-	}()
-	a.Settings().AddChangeListener(changes)
+	}
+	a.Settings().AddListener(changes)
 	w.ShowAndRun()
 }
 
