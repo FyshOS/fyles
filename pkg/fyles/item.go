@@ -1,6 +1,7 @@
 package fyles
 
 import (
+	"errors"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -11,6 +12,8 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -23,6 +26,7 @@ type fileData struct {
 	name     string
 	location fyne.URI
 	dir      bool
+	parent   bool // the "(Parent)" entry, which cannot be edited from here
 }
 
 type fileItem struct {
@@ -97,13 +101,101 @@ func (i *fileItem) buildMenu(u fyne.URI) *fyne.Menu {
 		openWithItem.Disabled = true
 	}
 
-	return fyne.NewMenu(
-		u.Name(),
+	items := []*fyne.MenuItem{
 		openItem, openWithItem,
 		fyne.NewMenuItem("Copy path", func() {
 			i.parent.win.Clipboard().SetContent(u.Path())
 		}),
-	)
+	}
+	if !i.data.parent {
+		items = append(items, fyne.NewMenuItemSeparator(),
+			fyne.NewMenuItem("Rename...", func() {
+				i.showRename(u)
+			}),
+			fyne.NewMenuItem("Delete...", func() {
+				i.showDelete(u, i.data.dir)
+			}))
+	}
+
+	return fyne.NewMenu(u.Name(), items...)
+}
+
+func (i *fileItem) showRename(u fyne.URI) {
+	entry := widget.NewEntry()
+	entry.SetText(u.Name())
+	entry.Validator = func(name string) error {
+		if name == "" {
+			return errors.New("name cannot be empty")
+		}
+		if strings.ContainsAny(name, `/\`) {
+			return errors.New("name cannot contain a path separator")
+		}
+		return nil
+	}
+
+	win := i.parent.win
+	form := dialog.NewForm("Rename", "Rename", "Cancel", []*widget.FormItem{
+		{Text: "Name", Widget: entry},
+	}, func(ok bool) {
+		name := entry.Text
+		if !ok || name == u.Name() {
+			return
+		}
+
+		dir, err := storage.Parent(u)
+		if err != nil {
+			dialog.ShowError(err, win)
+			return
+		}
+		dest, err := storage.Child(dir, name)
+		if err != nil {
+			dialog.ShowError(err, win)
+			return
+		}
+		if exists, _ := storage.Exists(dest); exists {
+			dialog.ShowError(errors.New("an item named "+name+" already exists"), win)
+			return
+		}
+
+		if err := storage.Move(u, dest); err != nil {
+			fyne.LogError("Failed to rename "+u.Path(), err)
+			dialog.ShowError(errors.New("could not rename "+u.Name()), win)
+			return
+		}
+		i.parent.reload(u, dest)
+	}, win)
+	entry.OnSubmitted = func(string) {
+		form.Submit()
+	}
+	form.Show()
+	win.Canvas().Focus(entry)
+}
+
+func (i *fileItem) showDelete(u fyne.URI, dir bool) {
+	msg := "Are you sure you want to delete \"" + u.Name() + "\"?"
+	if dir {
+		msg = "Are you sure you want to delete the folder \"" + u.Name() + "\" and all of its contents?"
+	}
+
+	win := i.parent.win
+	dialog.ShowConfirm("Delete", msg, func(ok bool) {
+		if !ok {
+			return
+		}
+
+		var err error
+		if dir {
+			err = storage.DeleteAll(u)
+		} else {
+			err = storage.Delete(u)
+		}
+		if err != nil {
+			fyne.LogError("Failed to delete "+u.Path(), err)
+			dialog.ShowError(errors.New("could not delete "+u.Name()), win)
+			return
+		}
+		i.parent.reload(u, nil)
+	}, win)
 }
 
 func (i *fileItem) setData(d *fileData) {

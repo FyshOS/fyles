@@ -17,6 +17,7 @@ type Panel struct {
 	HideParent bool
 	Filter     storage.FileFilter
 	items      []*fileData
+	dir        fyne.URI // the directory shown by SetDir, nil for a custom listing
 
 	content  *widget.GridWrap
 	bg       *canvas.Image
@@ -66,6 +67,7 @@ func (p *Panel) CreateRenderer() fyne.WidgetRenderer {
 
 // SetDir asks the fyles panel to display the specified directory
 func (p *Panel) SetDir(u fyne.URI) {
+	p.dir = u
 	p.content.Unselect(p.selected)
 
 	var items []*fileData
@@ -77,7 +79,7 @@ func (p *Panel) SetDir(u fyne.URI) {
 		}
 		parent, _ = storage.ParseURI(trim)
 		if err == nil {
-			items = append(items, &fileData{name: "(Parent)", location: parent, dir: true})
+			items = append(items, &fileData{name: "(Parent)", location: parent, dir: true, parent: true})
 		}
 	}
 	list, err := storage.List(u)
@@ -115,10 +117,33 @@ func (p *Panel) SetDir(u fyne.URI) {
 // SetListing asks the fyles panel to display a list of URIs.
 // This supports manually creating a collection of items not in a standard directory.
 func (p *Panel) SetListing(u []fyne.URI) {
+	p.dir = nil
 	p.content.Unselect(p.selected)
 
 	var items []*fileData
 	p.addListing(u, items)
+}
+
+// reload updates the panel after the item at old was renamed to updated,
+// or removed when updated is nil.
+func (p *Panel) reload(old, updated fyne.URI) {
+	if p.dir != nil {
+		p.SetDir(p.dir)
+		return
+	}
+
+	// a custom listing cannot be re-read, so patch the items we were given
+	list := make([]fyne.URI, 0, len(p.items))
+	for _, item := range p.items {
+		if item.location.String() == old.String() {
+			if updated == nil {
+				continue
+			}
+			item.location = updated
+		}
+		list = append(list, item.location)
+	}
+	p.SetListing(list)
 }
 
 func (p *Panel) addListing(list []fyne.URI, items []*fileData) {
