@@ -26,6 +26,10 @@ import (
 // Locations inside the home directory appear under a root of their own, so a
 // file URI would not match any node.
 func (ui *fylesUI) treeID(u fyne.URI) widget.TreeNodeID {
+	if u.Scheme() == "tree" {
+		return u.String() // already a tree node, such as a favourite
+	}
+
 	path := u.Path()
 	if ui.homeRoot != "" && (path == ui.homeDir || strings.HasPrefix(path, ui.homeDir+"/")) {
 		return ui.homeRoot + strings.TrimPrefix(path, ui.homeDir)
@@ -38,9 +42,34 @@ func (ui *fylesUI) treeID(u fyne.URI) widget.TreeNodeID {
 	return id
 }
 
+// fileURI is the inverse of treeID, resolving a tree node (favourite or home)
+// to the file URI of the directory it represents.
+func (ui *fylesUI) fileURI(u fyne.URI) fyne.URI {
+	if u.Scheme() != "tree" {
+		return u
+	}
+
+	path := u.Path()
+	if ui.homeRoot != "" {
+		if rest, ok := strings.CutPrefix(path, "/Favourites"); ok {
+			path = rest
+		} else if rest, ok := strings.CutPrefix(path, "/Home"); ok {
+			path = rest
+		}
+		path = ui.homeDir + path
+	}
+	return storage.NewFileURI(path)
+}
+
+// setDirectory changes the current directory to u, which may be either a file
+// URI or a node of the tree (keeping that node selected rather than its twin
+// under the home directory).
 func (ui *fylesUI) setDirectory(u fyne.URI) {
+	node := ui.treeID(u)
+	u = ui.fileURI(u)
+
 	ui.pwd = u
-	ui.fileTree.Select(ui.treeID(u))
+	ui.fileTree.Select(node)
 	ui.items.SetDir(u)
 	ui.fileScroll.ScrollToTop()
 	ui.filePath.SetText(u.Path())
@@ -154,18 +183,11 @@ func (ui *fylesUI) makeFilesPanel(u fyne.URI) *xWidget.FileTree {
 	}
 
 	files.OnSelected = func(uid widget.TreeNodeID) {
-		if len(uid) > len(favID) && uid[:len(favID)] == favID {
-			uid = homeRoot + uid[len(favID):]
+		u, err := storage.ParseURI(uid)
+		if err != nil {
+			fyne.LogError("Invalid tree node "+uid, err)
+			return
 		}
-		if strings.HasPrefix(uid, homeRoot) {
-			path := strings.Replace(uid, homeRoot, "file://"+homeDir, 1)
-			uid = path
-		}
-
-		if uid == "file://" {
-			uid = "file:///"
-		}
-		u, _ := storage.ParseURI(uid)
 		ui.setDirectory(u)
 	}
 
