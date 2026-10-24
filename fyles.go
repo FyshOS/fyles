@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	xWidget "fyne.io/x/fyne/widget"
 
+	"github.com/FyshOS/fyles/pkg/archive"
 	"github.com/FyshOS/fyles/pkg/fyles"
 )
 
@@ -17,6 +18,7 @@ type fylesUI struct {
 	fileTree   *xWidget.FileTree
 	items      *fyles.Panel
 	filePath   *widget.Label
+	newFolder  *widget.Button
 
 	filter storage.FileFilter
 
@@ -46,7 +48,7 @@ func (f *dirFilter) Matches(u fyne.URI) bool {
 	}
 
 	listable, _ := storage.CanList(u)
-	return listable
+	return listable || archive.IsFile(u)
 }
 
 func filterDir(files storage.FileFilter) storage.FileFilter {

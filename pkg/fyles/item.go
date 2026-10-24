@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"github.com/FyshOS/appie"
 	"github.com/FyshOS/fancyfs"
+	"github.com/FyshOS/fyles/pkg/archive"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -63,6 +64,10 @@ func (i *fileItem) CreateRenderer() fyne.WidgetRenderer {
 }
 
 func mimeForURI(u fyne.URI) (string, error) {
+	if archive.IsEntry(u) {
+		return u.MimeType(), nil // known from the archive index, nothing on disk to inspect
+	}
+
 	file := u.Name()
 	if u.Scheme() == "file" {
 		file = u.Path() // better specificity if we can
@@ -107,13 +112,13 @@ func (i *fileItem) buildMenu(u fyne.URI) *fyne.Menu {
 			i.parent.win.Clipboard().SetContent(u.Path())
 		}),
 	}
-	if !i.data.parent {
+	if !i.data.parent && !i.data.inArchive() {
 		items = append(items, fyne.NewMenuItemSeparator(),
 			fyne.NewMenuItem("Rename...", func() {
 				i.showRename(u)
 			}),
 			fyne.NewMenuItem("Delete...", func() {
-				i.showDelete(u, i.data.dir)
+				i.showDelete(u, i.data.dir && !archive.IsFile(u))
 			}))
 	}
 
@@ -199,11 +204,7 @@ func (i *fileItem) showDelete(u fyne.URI, dir bool) {
 }
 
 func (i *fileItem) setData(d *fileData) {
-	i.data = d
-
-	ext := filepath.Ext(i.data.name[1:])
-	i.data.name = i.data.name[:len(i.data.name)-len(ext)]
-
+	i.data = d // the name was already trimmed of its extension by fileName
 	i.Refresh()
 }
 
@@ -219,6 +220,9 @@ func (i *fileItem) tapMe() {
 
 func fileName(path fyne.URI) string {
 	name := path.Name()
+	if suffix := archive.Suffix(name); suffix != "" {
+		return name[:len(name)-len(suffix)]
+	}
 	ext := filepath.Ext(name[1:])
 	return name[:len(name)-len(ext)]
 }
@@ -256,9 +260,17 @@ func (s *fileItemRenderer) Refresh() {
 	s.fileTextSize = widget.NewLabel("M\nM").MinSize().Height // cache two-line label height
 
 	s.text.SetText(s.item.data.name)
-	s.icon.SetURI(s.item.data.location)
+	icon := s.item.data.location
+	if archive.IsFile(icon) {
+		icon = archive.Resolve(icon)
+	}
+	s.icon.SetURI(icon)
 
-	ff, err := fancyfs.DetailsForFolder(s.item.data.location)
+	var ff *fancyfs.FancyFolder
+	var err error
+	if !archive.Within(s.item.data.location) { // probing an archive for metadata would read it all
+		ff, err = fancyfs.DetailsForFolder(s.item.data.location)
+	}
 	if ff != nil && err == nil {
 		if ff.BackgroundURI != nil {
 			s.over.File = ff.BackgroundURI.Path()
@@ -310,13 +322,35 @@ func (i *fileItem) appsForMime(mime string) []appie.AppData {
 func (i *fileItem) openWith(app appie.AppData) {
 	i.parent.content.UnselectAll()
 
-	file := i.data.location.Name()
-	if i.data.location.Scheme() == "file" {
-		file = i.data.location.Path() // better specificity if we can
-	}
+	u := i.data.location
+	win := i.parent.win
+	go func() { // extracting from an archive can take a moment
+		file := u.Name()
+		if archive.Within(u) {
+			var path string
+			err := withActivity(win, u.Name(), "Extracting...", func() (err error) {
+				path, err = archive.Extract(u)
+				return err
+			})
+			if err != nil {
+				fyne.LogError("Failed to extract "+u.Path(), err)
+				fyne.Do(func() { dialog.ShowError(err, win) })
+				return
+			}
+			file = path
+		} else if u.Scheme() == "file" {
+			file = u.Path() // better specificity if we can
+		}
 
-	err := app.RunWithParameters([]string{file}, nil)
-	if err != nil {
-		fyne.LogError("Failed to launch app", err)
-	}
+		err := app.RunWithParameters([]string{file}, nil)
+		if err != nil {
+			fyne.LogError("Failed to launch app", err)
+		}
+	}()
+}
+
+// inArchive reports whether this item is inside an archive, where content
+// cannot be changed.
+func (d *fileData) inArchive() bool {
+	return archive.IsEntry(d.location)
 }

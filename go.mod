@@ -6,6 +6,8 @@ require (
 	fyne.io/fyne/v2 v2.8.1-0.20260725161945-54479ed874bd
 	fyne.io/x/fyne v0.0.0-20241224222935-5be10b3dd763
 	github.com/FyshOS/fancyfs v0.0.1
+	github.com/klauspost/compress v1.18.0
+	github.com/ulikunitz/xz v0.5.17
 )
 
 require (

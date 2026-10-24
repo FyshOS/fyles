@@ -5,6 +5,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"github.com/FyshOS/appie"
 	"github.com/FyshOS/fancyfs"
+	"github.com/FyshOS/fyles/pkg/archive"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/storage"
@@ -65,8 +66,10 @@ func (p *Panel) CreateRenderer() fyne.WidgetRenderer {
 	return widget.NewSimpleRenderer(container.NewStack(p.bg, p.content))
 }
 
-// SetDir asks the fyles panel to display the specified directory
+// SetDir asks the fyles panel to display the specified directory,
+// which may also be an archive file or a folder inside one.
 func (p *Panel) SetDir(u fyne.URI) {
+	u = archive.Resolve(u)
 	p.dir = u
 	p.content.Unselect(p.selected)
 
@@ -89,7 +92,10 @@ func (p *Panel) SetDir(u fyne.URI) {
 		p.addListing(list, items)
 	}
 
-	ff, err := fancyfs.DetailsForFolder(u)
+	var ff *fancyfs.FancyFolder
+	if !archive.Within(u) { // archives carry no folder metadata, and probing would read them
+		ff, err = fancyfs.DetailsForFolder(u)
+	}
 	if ff == nil || err != nil {
 		if err != nil && err != fancyfs.ErrNoMetadata {
 			fyne.LogError("Could not read dir metadata", err)
@@ -99,6 +105,7 @@ func (p *Panel) SetDir(u fyne.URI) {
 		p.bg.File = ""
 		p.bg.Resource = nil
 		p.bg.Image = nil
+		p.bg.FillMode = canvas.ImageFillContain // cover mode needs an image to measure
 		p.bg.Refresh()
 
 		return
@@ -153,6 +160,9 @@ func (p *Panel) addListing(list []fyne.URI, items []*fileData) {
 		}
 
 		dir, _ := storage.CanList(item)
+		if archive.IsFile(item) {
+			dir = true // browsed like a folder
+		}
 		items = append(items, &fileData{name: fileName(item), location: item, dir: dir})
 	}
 

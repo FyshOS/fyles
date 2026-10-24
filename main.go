@@ -5,6 +5,7 @@ package main
 import (
 	"os"
 
+	"github.com/FyshOS/fyles/pkg/archive"
 	"github.com/FyshOS/fyles/pkg/fyles"
 
 	"fyne.io/fyne/v2"
@@ -60,6 +61,7 @@ func main() {
 	}
 	a.Settings().AddListener(changes)
 	w.ShowAndRun()
+	archive.Cleanup()
 }
 
 func makePanel(dir fyne.URI, w fyne.Window) fyne.CanvasObject {
