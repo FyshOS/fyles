@@ -95,20 +95,25 @@ func (ui *fylesUI) makeFilesPanel(u fyne.URI) *xWidget.FileTree {
 		base = []string{base[0], homeRoot, base[1]}
 	}
 	ui.homeDir, ui.homeRoot = homeDir, homeRoot
-	faves := []string{
-		favID + "/Documents",
-		favID + "/Downloads",
-		favID + "/Music",
-		favID + "/Pictures",
-		favID + "/Videos",
-	}
-
 	files := xWidget.NewFileTree(root)
-	mapIcon(files, favID+"/Documents", theme.DocumentIcon())
-	mapIcon(files, favID+"/Downloads", theme.DownloadIcon())
-	mapIcon(files, favID+"/Music", theme.MediaMusicIcon())
-	mapIcon(files, favID+"/Pictures", theme.MediaPhotoIcon())
-	mapIcon(files, favID+"/Videos", theme.MediaVideoIcon())
+	var faves []string
+	addFave := func(name string, icon fyne.Resource) {
+		if homeDir == "" {
+			return
+		}
+		if info, err := os.Stat(filepath.Join(homeDir, name)); err != nil || !info.IsDir() {
+			return // only show favourites that exist
+		}
+
+		id := favID + "/" + name
+		faves = append(faves, id)
+		mapIcon(files, id, icon)
+	}
+	addFave("Documents", theme.DocumentIcon())
+	addFave("Downloads", theme.DownloadIcon())
+	addFave("Music", theme.MediaMusicIcon())
+	addFave("Pictures", theme.MediaPhotoIcon())
+	addFave("Videos", theme.MediaVideoIcon())
 
 	files.Filter = filterDir(ui.filter)
 	files.Sorter = func(u1, u2 fyne.URI) bool {
