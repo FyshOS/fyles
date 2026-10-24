@@ -2,3 +2,8 @@
 /Fyles*
 
 .idea/
+
+# fyshpkg / fyne-cross build output
+/fyne-cross/
+/.cache/
+/.config/

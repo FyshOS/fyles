@@ -1,12 +1,13 @@
 [Details]
 Icon = "Icon.png"
 Name = "Fyles"
-Version = "0.2.0"
 ID = "com.fyshos.fyles"
-Build = 1
+Version = "0.2.0"
+Build = 2
 
 [LinuxAndBSD]
 Categories = ["Utility"]
+Comment = "File manager"
 
 [Migrations]
 fyneDo = true
