@@ -1,6 +1,7 @@
 [Details]
 Icon = "Icon.png"
 Name = "Fyles"
+Version = "0.2.0"
 ID = "com.fyshos.fyles"
 Build = 1
 
